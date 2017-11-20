@@ -15,6 +15,7 @@ end
 
 [~,I] = sort(fileIDs);
 
+se = strel('disk',3);
 conn = 8;
 for ii=1:length(files)
     load(files(I(ii)).name,'correctedVideo');
@@ -22,23 +23,8 @@ for ii=1:length(files)
     for jj=1:numIms
         backSubtract = correctedVideo(:,:,jj);
         
-        binaryim = backSubtract~=0;
-        %       [PixelIdxList,~] = bwconncomp_2d(BW, conn);
-        CC = bwconncomp(binaryim,conn);
-        area = cellfun(@numel, CC.PixelIdxList);
-        
-        [~,ind] = max(area);
-        idxToKeep = CC.PixelIdxList(ind);
-        idxToKeep = vertcat(idxToKeep{:});
-        
-        mask = false(size(binaryim));
-        mask(idxToKeep) = true;
-        
-        %imagesc(mask);
-        
-        % eliminate everything in the image except the biggest connected
-        %  object
-        backSubtract(~mask) = 0;
+        mask = backSubtract>0;
+        mask = imopen(mask,se);
         
         [r,c] = find(mask~=0);
         cloud = [c,r];
@@ -47,10 +33,12 @@ for ii=1:length(files)
         [eigenvectors,eigenvalues] = eigs(cov(cloud),2);
         
         tempeig = eigenvectors(:,2)./norm(eigenvectors(:,2));
+        
+        backSubtract(~mask) = 0;
         subplot(2,1,1);
         imagesc(backSubtract);caxis([0 100]);colormap('gray');
         subplot(2,1,2);
         plot(tempeig(1),tempeig(2),'.','LineWidth',10);axis([-1 1 -1 1]);
-        pause(1/20);
+        pause(1/30);
     end
 end
