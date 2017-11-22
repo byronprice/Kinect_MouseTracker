@@ -48,7 +48,7 @@ for ii=1:length(files)
         depthVideo(:,:,jj) = temp;
     end
     correctedVideo = depthVideo(hMin:hMax,wMin:wMax,:);
-    correctedVideo(correctedVideo<=4) = 0;
+    correctedVideo(correctedVideo<=10) = 0;
     correctedVideo(correctedVideo>200) = 0;
     for jj=1:numIms
         temp = correctedVideo(:,:,jj);
@@ -77,8 +77,8 @@ for ii=1:length(files)
         correctedVideo(:,:,jj) = temp;
     end
     correctedVideo = medfilt3(correctedVideo,[3 3 3]);
-    correctedVideo = medfilt3(correctedVideo,[3 3 3]);
-    correctedVideo = medfilt3(correctedVideo,[3 3 3]);
+    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
+    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
     save(files(ii).name,'correctedVideo','depthFrames','mmPerPixel','height','width');
 end
 

@@ -2,18 +2,18 @@
 
 Date = datetime('today','Format','yyyy-MM-dd');
 Date = char(Date);Date = strrep(Date,'-','');Date = str2double(Date);
-name = 12345;
+name = '04052';
 
 numDepthFrames = 18000; %18000 for 10 minutes
 
 depth_width = 512;
 depth_height = 424;
 
-fileIters = 500; % between 500 and 1000
+fileIters = 1000; % between 500 and 1000
 
 numIter = round(numDepthFrames/fileIters);
 
-filename = sprintf('DepthData1.bin');
+filename = sprintf('DepthData2.bin');
 fileID = fopen(filename);
 formatSpec = 'float32';
 globalCount = 1;
@@ -41,7 +41,7 @@ for jj=1:numIter
 %         end
 
     
-fileName = sprintf('mouse%d-%d_%d.mat',name,jj,Date);
+fileName = sprintf('mouse%s-%d_%d.mat',name,jj,Date);
 save(fileName,'depthVideo','depthFrames');
 end
 fclose(fileID);
