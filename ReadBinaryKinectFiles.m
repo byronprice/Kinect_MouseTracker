@@ -2,7 +2,7 @@
 
 Date = datetime('today','Format','yyyy-MM-dd');
 Date = char(Date);Date = strrep(Date,'-','');Date = str2double(Date);
-name = '04052';
+name = '04051';
 
 numDepthFrames = 18000; %18000 for 10 minutes
 
@@ -13,7 +13,7 @@ fileIters = 1000; % between 500 and 1000
 
 numIter = round(numDepthFrames/fileIters);
 
-filename = sprintf('DepthData2.bin');
+filename = sprintf('DepthData1.bin');
 fileID = fopen(filename);
 formatSpec = 'float32';
 globalCount = 1;

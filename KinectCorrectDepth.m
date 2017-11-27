@@ -38,6 +38,7 @@ wMin = round(min(x));
 wMax = round(max(x));
 
 [height,width] = size(background(hMin:hMax,wMin:wMax));
+
 conn = 8;
 for ii=1:length(files)
     load(files(ii).name);
@@ -72,13 +73,35 @@ for ii=1:length(files)
 
             temp(~mask) = 0;
         end
-        
-        temp = medfilt2(temp);
         correctedVideo(:,:,jj) = temp;
     end
-    correctedVideo = medfilt3(correctedVideo,[3 3 3]);
     correctedVideo = medfilt3(correctedVideo,[3 3 5]);
     correctedVideo = medfilt3(correctedVideo,[3 3 5]);
+    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
+    
+    for jj=1:numIms
+        temp = correctedVideo(:,:,jj);
+        
+        binaryim = temp>0;
+        CC = bwconncomp(binaryim,conn);
+        area = cellfun(@numel, CC.PixelIdxList);
+        
+        [maxarea,ind] = max(area);
+        if maxarea>50
+            idxToKeep = CC.PixelIdxList(ind);
+            idxToKeep = vertcat(idxToKeep{:});
+            
+            mask = false(size(binaryim));
+            mask(idxToKeep) = true;
+            
+            % eliminate everything in the image except the biggest connected
+            %  object
+
+            temp(~mask) = 0;
+        end
+        correctedVideo(:,:,jj) = temp;
+    end
+        
     save(files(ii).name,'correctedVideo','depthFrames','mmPerPixel','height','width');
 end
 
