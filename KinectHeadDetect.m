@@ -15,10 +15,7 @@ end
 
 [~,I] = sort(fileIDs);
 
-reduceY = 50;reduceX = 90;padSize = max(reduceX,reduceY)+5;
-
-se = strel('disk',5);
-conn = 8;
+reduceY = 60;reduceX = 100;padSize = max(reduceX,reduceY)+5;
 for ii=1:length(files)
     load(files(I(ii)).name,'correctedVideo','mmPerPixel','height','width','depthFrames');
     [height,width,numIms] = size(correctedVideo);
@@ -39,10 +36,6 @@ for ii=1:length(files)
         backSubtract = correctedVideo(:,:,1);
         
         mask = backSubtract>0;
-        
-%         mask = imopen(mask,se);
-% 
-%         backSubtract(~mask) = 0;
         
         [r,c] = find(mask~=0);
         cloud = [c,r];
@@ -75,10 +68,6 @@ for ii=1:length(files)
         backSubtract = correctedVideo(:,:,jj);
         
         mask = backSubtract>0;
-        
-%         mask = imopen(mask,se);
-% 
-%         backSubtract(~mask) = 0;
         
         [r,c] = find(mask~=0);
         cloud = [c,r];

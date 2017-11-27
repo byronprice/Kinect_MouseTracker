@@ -39,24 +39,44 @@ wMax = round(max(x));
 
 [height,width] = size(background(hMin:hMax,wMin:wMax));
 
+imshow(uint16(background));caxis([675 750]);
+title('CLICK ON A BACKGROUND BOX');
+[x,y] = getpts;
+
+hhMin = round(min(y));
+hhMax = round(max(y));
+wwMin = round(min(x));
+wwMax = round(max(x));
+
+se = strel('disk',5);
 conn = 8;
 for ii=1:length(files)
     load(files(ii).name);
     [~,~,numIms] = size(depthVideo);
-    
+    backgroundFluor = zeros(numIms,1);
     for jj=1:numIms
+        temp = depthVideo(hhMin:hhMax,wwMin:wwMax,jj);
+        backgroundFluor(jj) = mean(temp(:));
         temp = background-depthVideo(:,:,jj);
         depthVideo(:,:,jj) = temp;
     end
+    
+    backgroundFluor = backgroundFluor-mean(backgroundFluor);
+    
     correctedVideo = depthVideo(hMin:hMax,wMin:wMax,:);
+    
+    for jj=1:numIms
+       correctedVideo(:,:,jj) = correctedVideo(:,:,jj)+backgroundFluor(jj); 
+    end
+    
     correctedVideo(correctedVideo<=10) = 0;
     correctedVideo(correctedVideo>200) = 0;
     for jj=1:numIms
         temp = correctedVideo(:,:,jj);
-        temp = medfilt2(temp);
-        temp = medfilt2(temp);
         
         binaryim = temp>0;
+        binaryim = imopen(binaryim,se);
+        binaryim = imclose(binaryim,se);
         CC = bwconncomp(binaryim,conn);
         area = cellfun(@numel, CC.PixelIdxList);
         
@@ -73,9 +93,10 @@ for ii=1:length(files)
 
             temp(~mask) = 0;
         end
+        temp = medfilt2(temp);temp = medfilt2(temp);
         correctedVideo(:,:,jj) = temp;
     end
-    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
+    
     correctedVideo = medfilt3(correctedVideo,[3 3 5]);
     correctedVideo = medfilt3(correctedVideo,[3 3 5]);
     
@@ -101,7 +122,7 @@ for ii=1:length(files)
         end
         correctedVideo(:,:,jj) = temp;
     end
-        
+    
     save(files(ii).name,'correctedVideo','depthFrames','mmPerPixel','height','width');
 end
 
