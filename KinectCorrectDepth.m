@@ -74,9 +74,10 @@ for ii=1:length(files)
     for jj=1:numIms
         temp = correctedVideo(:,:,jj);
         
+        temp = medfilt2(temp);
+        temp = medfilt2(temp);
+        
         binaryim = temp>0;
-        binaryim = imopen(binaryim,se);
-        binaryim = imclose(binaryim,se);
         CC = bwconncomp(binaryim,conn);
         area = cellfun(@numel, CC.PixelIdxList);
         
@@ -93,7 +94,6 @@ for ii=1:length(files)
 
             temp(~mask) = 0;
         end
-        temp = medfilt2(temp);temp = medfilt2(temp);
         correctedVideo(:,:,jj) = temp;
     end
     
@@ -104,22 +104,9 @@ for ii=1:length(files)
         temp = correctedVideo(:,:,jj);
         
         binaryim = temp>0;
-        CC = bwconncomp(binaryim,conn);
-        area = cellfun(@numel, CC.PixelIdxList);
-        
-        [maxarea,ind] = max(area);
-        if maxarea>50
-            idxToKeep = CC.PixelIdxList(ind);
-            idxToKeep = vertcat(idxToKeep{:});
-            
-            mask = false(size(binaryim));
-            mask(idxToKeep) = true;
-            
-            % eliminate everything in the image except the biggest connected
-            %  object
+        mask = imopen(binaryim,se);
+        temp(~mask) = 0;
 
-            temp(~mask) = 0;
-        end
         correctedVideo(:,:,jj) = temp;
     end
     
