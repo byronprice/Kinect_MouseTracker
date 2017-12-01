@@ -2,7 +2,7 @@
 
 % work in progress
 
-mouseNum = '04051';Date = 20171125;
+mouseNum = '04054';Date = 20171129;
 files = dir(sprintf('mouse%s-*_%d.mat',mouseNum,Date));
 
 % sometimes the files don't load in the correct order ... rearrange them
@@ -17,7 +17,8 @@ end
 
 reduceY = 50;reduceX = 100;padSize = max(reduceX,reduceY)+5;
 for ii=1:length(files)
-    load(files(I(ii)).name,'correctedVideo','mmPerPixel','height','width','depthFrames');
+    load(files(I(ii)).name,'correctedVideo','mmPerPixel','height',...
+        'width','depthFrames');
     [height,width,numIms] = size(correctedVideo);
     
     rotatedVideo = zeros(reduceY+1,reduceX+1,numIms);
@@ -46,13 +47,16 @@ for ii=1:length(files)
         tempX = headX-bodyX;
         tempY = headY-bodyY;
         bcmAngle(1) = atan(tempY/tempX);
-        if tempX > 0 && tempY > 0
-        elseif tempX > 0 && tempY < 0
-        elseif tempX < 0 && tempY > 0
+        if tempX >= 0 && tempY >= 0
+        elseif tempX >= 0 && tempY < 0
+            bcmAngle(1) = 2*pi+bcmAngle(1);
+        elseif tempX < 0 && tempY >= 0
             bcmAngle(1) = bcmAngle(1)+pi;
         elseif tempX < 0 && tempY < 0
             bcmAngle(1) = bcmAngle(1)+pi;
         end
+        
+        comPosition(1,:) = [com_body(1),com_body(2)];
         
         C = padarray(backSubtract,[padSize padSize],0);
         newC = C(round(com_body(2))+padSize-reduceY/2:round(com_body(2))+padSize+reduceY/2,...
@@ -89,9 +93,10 @@ for ii=1:length(files)
         tempX = head1(1)-com_body(1);
         tempY = head1(2)-com_body(2);
         bcmAngle1 = atan(tempY/tempX);
-        if tempX > 0 && tempY > 0
-        elseif tempX > 0 && tempY < 0
-        elseif tempX < 0 && tempY > 0
+        if tempX >= 0 && tempY >= 0
+        elseif tempX >= 0 && tempY < 0
+            bcmAngle1 = 2*pi+bcmAngle1;
+        elseif tempX < 0 && tempY >= 0
             bcmAngle1 = bcmAngle1+pi;
         elseif tempX < 0 && tempY < 0
             bcmAngle1 = bcmAngle1+pi;
@@ -111,9 +116,10 @@ for ii=1:length(files)
         tempX = head2(1)-com_body(1);
         tempY = head2(2)-com_body(2);
         bcmAngle2 = atan(tempY/tempX);
-        if tempX > 0 && tempY > 0
-        elseif tempX > 0 && tempY < 0
-        elseif tempX < 0 && tempY > 0
+        if tempX >= 0 && tempY >= 0
+        elseif tempX >= 0 && tempY < 0
+            bcmAngle2 = 2*pi+bcmAngle2;
+        elseif tempX < 0 && tempY >= 0
             bcmAngle2 = bcmAngle2+pi;
         elseif tempX < 0 && tempY < 0
             bcmAngle2 = bcmAngle2+pi;
@@ -121,7 +127,7 @@ for ii=1:length(files)
         
         difference2 = abs(angdiff(bcmAngle2,prevBcmAngle));
         
-        if difference1<difference2
+        if difference1<=difference2
             headPosition(1,:) = [head1(1),head1(2)];
             bcmAngle(1) = bcmAngle1;
             head = head1;
@@ -169,9 +175,10 @@ for ii=1:length(files)
         tempX = head1(1)-com_body(1);
         tempY = head1(2)-com_body(2);
         bcmAngle1 = atan(tempY/tempX);
-        if tempX > 0 && tempY > 0
-        elseif tempX > 0 && tempY < 0
-        elseif tempX < 0 && tempY > 0
+        if tempX >= 0 && tempY >= 0
+        elseif tempX >= 0 && tempY < 0
+            bcmAngle1 = 2*pi+bcmAngle1;
+        elseif tempX < 0 && tempY >= 0
             bcmAngle1 = bcmAngle1+pi;
         elseif tempX < 0 && tempY < 0
             bcmAngle1 = bcmAngle1+pi;
@@ -191,9 +198,10 @@ for ii=1:length(files)
         tempX = head2(1)-com_body(1);
         tempY = head2(2)-com_body(2);
         bcmAngle2 = atan(tempY/tempX);
-        if tempX > 0 && tempY > 0
-        elseif tempX > 0 && tempY < 0
-        elseif tempX < 0 && tempY > 0
+        if tempX >= 0 && tempY >= 0
+        elseif tempX >= 0 && tempY < 0
+            bcmAngle2 = bcmAngle2+2*pi;
+        elseif tempX < 0 && tempY >= 0
             bcmAngle2 = bcmAngle2+pi;
         elseif tempX < 0 && tempY < 0
             bcmAngle2 = bcmAngle2+pi;
@@ -201,7 +209,7 @@ for ii=1:length(files)
         
         difference2 = abs(angdiff(bcmAngle2,bcmAngle(jj-1)));
         
-        if difference1<difference2
+        if difference1<=difference2
             headPosition(jj,:) = [head1(1),head1(2)];
             bcmAngle(jj) = bcmAngle1;
             head = head1;
