@@ -75,7 +75,6 @@ for ii=1:length(files)
         temp = correctedVideo(:,:,jj);
         
         temp = medfilt2(temp);
-        temp = medfilt2(temp);
         
         binaryim = temp>0;
         CC = bwconncomp(binaryim,conn);
@@ -97,8 +96,7 @@ for ii=1:length(files)
         correctedVideo(:,:,jj) = temp;
     end
     
-    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
-    correctedVideo = medfilt3(correctedVideo,[3 3 5]);
+    correctedVideo = medfilt3(correctedVideo,[3 3 3]);
     
     for jj=1:numIms
         temp = correctedVideo(:,:,jj);
@@ -106,11 +104,12 @@ for ii=1:length(files)
         binaryim = temp>0;
         mask = imopen(binaryim,se);
         temp(~mask) = 0;
-
+        
         correctedVideo(:,:,jj) = temp;
     end
     
-    save(files(ii).name,'correctedVideo','depthFrames','mmPerPixel','height','width');
+    save(files(ii).name,'correctedVideo','depthFrames','mmPerPixel',...
+        'height','width','depthVideo');
 end
 
 end
